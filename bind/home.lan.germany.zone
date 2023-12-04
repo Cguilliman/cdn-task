@@ -1,0 +1,12 @@
+$TTL 86400
+@   IN  SOA ns1.home.lan. admin.home.lan. (
+        2023010101  ; Serial
+        3600        ; Refresh
+        1800        ; Retry
+        604800      ; Expire
+        86400       ; Minimum TTL
+    )
+
+// NS and A records for Germany
+@   IN  NS  ns1.home.lan.
+ns1 IN  A   172.19.0.6  // ip of balancer2 container

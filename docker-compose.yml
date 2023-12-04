@@ -1,0 +1,104 @@
+version: '3.9'
+
+services:
+
+#  bind:
+#    image: sameersbn/bind:latest
+#    container_name: bind_server
+#    ports:
+#      - "53:53/tcp"
+#      - "53:53/udp"
+#    volumes:
+#      - ./bind:/data
+##      - ./bind/yourdomain.com.zone:/etc/bind/yourdomain.com.zone
+#      - ./bind-logs:/var/log/bind
+##    environment:
+##      - TZ=Your/TimeZone
+#    restart:
+#      always
+#
+
+#options {
+#
+#
+#    allow-query { any; };
+#    recursion yes;
+#};
+#
+#
+#zone "home.lan" IN {
+#    type master;
+#    file "/etc/bind/home.lan.zone";
+#};
+
+  bind9:
+    container_name: bind-dns
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=America/New_York
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./bind:/etc/bind
+      - ./cache:/var/cache/bind
+      - ./records:/var/lib/bind
+    restart: unless-stopped
+
+
+  balancer1:
+    image: nginx:latest
+    ports:
+      - "9000:80"
+    volumes:
+      - ./nginx/balancer.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - node1
+      - node2
+
+  node1:
+    image: nginx:latest
+    container_name: node1-images
+    volumes:
+      - ./nginx/node.conf:/etc/nginx/nginx.conf
+      - ./nginx/images:/files/images/
+    ports:
+      - "8000:80"
+
+  node2:
+    image: nginx:latest
+    container_name: node2-images
+    volumes:
+      - ./nginx/node.conf:/etc/nginx/nginx.conf
+      - ./nginx/images:/files/images/
+    ports:
+      - "8001:80"
+
+  balancer2:
+    image: nginx:latest
+    ports:
+      - "9001:80"
+    volumes:
+      - ./nginx/balancer.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - node3
+      - node4
+
+  node3:
+    image: nginx:latest
+    container_name: node3-images
+    volumes:
+      - ./nginx/node.conf:/etc/nginx/nginx.conf
+      - ./nginx/images:/files/images/
+    ports:
+      - "8002:80"
+
+  node4:
+    image: nginx:latest
+    container_name: node4-images
+    volumes:
+      - ./nginx/node.conf:/etc/nginx/nginx.conf
+      - ./nginx/images:/files/images/
+    ports:
+      - "8003:80"
